@@ -20,17 +20,18 @@ function set_salary_window_list_on_render_item(p) {
 
 [es=modal_window]
 set_salary_window {
+    center_window : true
     pos [(sw(0) - px(24))/2, (sh(0) - px(25))/2]
     allow_rmb_goback: true
     draw_underlying: true
 
     ui {
-        background_image : background({pack:PACK_UNLOADED, id:11})
+        background_image : background({pack:PACK_UNLOADED, id:11, cover:true})
         background       : outer_panel({size[24, 25]})
-        resource_icon    : resource_icon({pos[16, 16], resource:RESOURCE_DEBEN})
-        title            : text_center({pos[48, 16], size[px(24) - 64, 20], text[52, 15], font: FONT_LARGE_BLACK_ON_LIGHT})
+        resource_icon    : resource_icon({margin{left:16, top:16}, resource:RESOURCE_DEBEN})
+        title            : text_center({margin{centerx:-168, top:16}, size[px(21), 20], text[52, 15], font: FONT_LARGE_BLACK_ON_LIGHT})
         salary_ranks     : scrollable_list({
-                                pos[16, 48]
+                                margin{centerx:-176, top:48}
                                 size[22, 15]
                                 view_items: 11
                                 buttons_size_y: 20
@@ -43,7 +44,7 @@ set_salary_window {
                                 onrender_item: set_salary_window_list_on_render_item
                                 onclick_item: set_salary_window_list_on_click_item
                             })
-        explanation_text : text({pos[16, 304], size[px(22), -1], wrap:px(22), font: FONT_NORMAL_BLACK_ON_LIGHT, multiline:true})
+        explanation_text : text({margin{centerx:-176, top:304}, size[px(22), -1], wrap:px(22), font: FONT_NORMAL_BLACK_ON_LIGHT, multiline:true})
         btn_cancel       : button({margin{centerx: -80, bottom: -40}, size[160, 20], text[13, 4], font: FONT_NORMAL_BLACK_ON_LIGHT, onclick: window_go_back})
     }
 }

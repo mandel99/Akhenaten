@@ -58,6 +58,7 @@ autoconfig_window::autoconfig_window(xstring s) {
 }
 
 void autoconfig_window::on_restore() {
+    update_window_pos();
     ui.begin_widget(pos);
     ui.event(window_info{ pos }, get_section(), __func__);
     ui.end_widget();
@@ -74,6 +75,7 @@ void autoconfig_window::archive_load(archive arch) {
 }
 
 int autoconfig_window::ui_handle_mouse(const mouse *m) {
+    update_window_pos();
     ui.begin_widget(pos);
     bool handled = ui::handle_mouse(m);
 
@@ -113,6 +115,7 @@ int autoconfig_window::draw_background(UiFlags flags) {
         init();
         _is_inited = true;
     }
+    update_window_pos();
     ui.begin_widget(pos);
     ui.event(window_info{pos}, get_section(), __func__);
     ui.end_widget();
@@ -126,6 +129,7 @@ void autoconfig_window::ui_draw_foreground(UiFlags flags) {
         window_draw_underlying_window(UiFlags_Readonly);
     }
 
+    update_window_pos();
     ui.begin_widget(pos);
     ui.draw(flags);
     ui.event(window_info{ pos }, get_section(), __func__);
@@ -133,6 +137,7 @@ void autoconfig_window::ui_draw_foreground(UiFlags flags) {
 }
 
 void autoconfig_window::init() {
+    update_window_pos();
     ui.begin_widget(pos);
     ui.event(window_info{ pos }, get_section(), __func__);
 

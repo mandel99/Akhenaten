@@ -19,13 +19,14 @@ function dynasty_menu_btn_custom() { window_scenario_selection_show(MAP_SELECTIO
 
 [es=window]
 window_dinasty_menu {
+    center_window : true
     pos [(sw(0) - px(24))/2, (sh(0) - px(21))/2]
     allow_rmb_goback : true
     ui {
-        background_image: background({pack:PACK_UNLOADED, id:31})
+        background_image: background({pack:PACK_UNLOADED, id:31, cover:true})
         background      : outer_panel({size[24, 19]})
 
-        title       : text_center({pos[0, 20], size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT})
+        title       : text_center({margin{top:20}, size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT})
         btnresume   : button({margin{centerx: -135, top: 40 + 1 * 40}, size[270, 25], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: dynasty_menu_btn_resume })
         btnexplore  : button({margin{centerx: -135, top: 40 + 2 * 40}, size[270, 25], text[293, 6], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: dynasty_menu_btn_explore })
         btnload     : button({margin{centerx: -135, top: 40 + 3 * 40}, size[270, 25], text[293, 2], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: dynasty_menu_btn_load })

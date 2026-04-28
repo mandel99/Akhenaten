@@ -32,7 +32,7 @@ void logo_screen::draw_foreground(UiFlags) {
     g_render.clear_screen();
     painter ctx = game.painter();
 
-    ImageDraw::img_background(ctx, image_id_from_group(GROUP_LOGO));
+    ImageDraw::img_background_cover(ctx, image_id_from_group(GROUP_LOGO));
 
     static int logo_tick_count = 0;
     graphics_set_to_dialog();

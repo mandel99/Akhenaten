@@ -1,79 +1,87 @@
 #include "plain_message_dialog.h"
 
-#include "core/string.h"
-#include "graphics/graphics.h"
-#include "graphics/elements/image_button.h"
-#include "graphics/elements/panel.h"
-#include "graphics/image_groups.h"
-#include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "window/autoconfig_window.h"
 
-static void button_ok(int param1, int param2);
+namespace {
 
-static image_button buttons[] = {
-  {223, 140, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1},
-};
-
-struct plain_message_dialog_t {
+struct plain_message_dialog_window_t : autoconfig_window {
     xstring title;
     xstring message;
     xstring debug_info;
-};
 
-plain_message_dialog_t plain_message_dialog;
+    plain_message_dialog_window_t() : autoconfig_window("plain_message_dialog_window") {}
 
-static int init(pcstr title, pcstr message, pcstr info) {
-    if (g_window_manager.window_is("window_plain_message_dialog")) {
-        // don't show popup over popup
+    virtual int handle_mouse(const mouse* m) override { return 0; }
+    virtual int get_tooltip_text() override { return 0; }
+    virtual void draw_foreground(UiFlags flags) override {}
+    virtual xstring get_section() const override { return "plain_message_dialog_window"; }
+
+    virtual void init() override {
+        autoconfig_window::init();
+        ui["btn_ok"].onclick([this] { close(); });
+        sync_ui();
+    }
+
+    virtual int draw_background(UiFlags flags) override {
+        sync_ui();
+        return autoconfig_window::draw_background(flags);
+    }
+
+    virtual void ui_draw_foreground(UiFlags flags) override {
+        sync_ui();
+        autoconfig_window::ui_draw_foreground(flags);
+    }
+
+    virtual int ui_handle_mouse(const mouse* m) override {
+        autoconfig_window::ui_handle_mouse(m);
+
+        const hotkeys* h = hotkey_state();
+        if (input_go_back_requested(m, h) || h->enter_pressed) {
+            close();
+        }
+
         return 0;
     }
 
-    plain_message_dialog.debug_info = info;
-    plain_message_dialog.title = title;
-    plain_message_dialog.message = message;
+    void sync_ui() {
+        ui["title"] = title;
+        ui["message"] = message;
+    }
+
+    void close() {
+        window_go_back();
+    }
+};
+
+plain_message_dialog_window_t g_plain_message_dialog_window;
+
+int init_dialog(pcstr title, pcstr message, pcstr info) {
+    if (g_window_manager.window_is("window_plain_message_dialog")) {
+        return 0;
+    }
+
+    g_plain_message_dialog_window.debug_info = info;
+    g_plain_message_dialog_window.title = title;
+    g_plain_message_dialog_window.message = message;
     return 1;
 }
 
-static void draw_background(int) {
-    graphics_set_to_dialog();
-    outer_panel_draw(vec2i{80, 80}, 30, 12);
-    text_draw_centered(plain_message_dialog.title.c_str(), 80, 100, 480, FONT_LARGE_BLACK_ON_LIGHT, 0);
-    text_draw_multiline(plain_message_dialog.message, { 100, 140 }, 450, FONT_NORMAL_BLACK_ON_LIGHT, 0);
-    graphics_reset_dialog();
-}
-
-static void draw_foreground(int) {
-    graphics_set_to_dialog();
-    image_buttons_draw({80, 80}, buttons, 1);
-    graphics_reset_dialog();
-}
-
-static void close(void) {
-    window_go_back();
-}
-
-static void handle_input(const mouse* m, const hotkeys* h) {
-    if (image_buttons_handle_mouse(mouse_in_dialog(m), {80, 80}, buttons, 1, 0))
-        return;
-    if (input_go_back_requested(m, h) || h->enter_pressed)
-        close();
-}
-
-static void button_ok(int param1, int param2) {
-    close();
 }
 
 void window_plain_message_dialog_show(pcstr title, pcstr message, pcstr debug_info) {
-    if (!init(title, message, debug_info)) {
+    if (!init_dialog(title, message, debug_info)) {
         return;
     }
 
     static window_type window = {
         "window_plain_message_dialog",
-        draw_background,
-        draw_foreground,
-        handle_input
+        [] (int flags) { g_plain_message_dialog_window.draw_background(flags); },
+        [] (int flags) { g_plain_message_dialog_window.ui_draw_foreground(flags); },
+        [] (const mouse* m, const hotkeys* h) { g_plain_message_dialog_window.ui_handle_mouse(m); }
     };
+
+    g_plain_message_dialog_window.init();
     window_show(&window);
 }

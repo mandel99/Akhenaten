@@ -2,6 +2,7 @@ log_info("akhenaten: ui hold festival started")
 
 [es=window]
 hold_festival_window {
+    center_window : true
     pos [(sw(0) - px(34)) / 2, (sh(0) - px(20)) / 2]
     needs_sync : true
     allow_rmb_goback : true
@@ -9,16 +10,16 @@ hold_festival_window {
     on_close_cb : null
 
     ui {
-        background_image: background({pack:PACK_UNLOADED, id:11})
+        background_image: background({pack:PACK_UNLOADED, id:11, cover:true})
         background      : outer_panel({size[34, 20]})
 
-        title           : text_center({pos[0, 20], size[px(34), -1], font : FONT_LARGE_BLACK_ON_LIGHT })
+        title           : text_center({margin{top:20}, size[px(34), -1], font : FONT_LARGE_BLACK_ON_LIGHT })
 
-        god0            : image_button({pos[100 * 0 + 30, 66], pack:PACK_UNLOADED, id:21, offset:16 + 0, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_0"})
-        god1            : image_button({pos[100 * 1 + 30, 66], pack:PACK_UNLOADED, id:21, offset:16 + 1, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_1"})
-        god2            : image_button({pos[100 * 2 + 30, 66], pack:PACK_UNLOADED, id:21, offset:16 + 2, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_2"})
-        god3            : image_button({pos[100 * 3 + 30, 66], pack:PACK_UNLOADED, id:21, offset:16 + 3, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_3"})
-        god4            : image_button({pos[100 * 4 + 30, 66], pack:PACK_UNLOADED, id:21, offset:16 + 4, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_4"})
+        god0            : image_button({margin{centerx:-242, top:66}, pack:PACK_UNLOADED, id:21, offset:16 + 0, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_0"})
+        god1            : image_button({margin{centerx:-142, top:66}, pack:PACK_UNLOADED, id:21, offset:16 + 1, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_1"})
+        god2            : image_button({margin{centerx:-42, top:66}, pack:PACK_UNLOADED, id:21, offset:16 + 2, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_2"})
+        god3            : image_button({margin{centerx:58, top:66}, pack:PACK_UNLOADED, id:21, offset:16 + 3, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_3"})
+        god4            : image_button({margin{centerx:158, top:66}, pack:PACK_UNLOADED, id:21, offset:16 + 4, offset_pressed:5, offset_focused:5, offset_disabled:0, border:true, onclick_event: "festival_select_god_4"})
         small_festival  : button({margin{centerx:-215, bottom:-140 }, size[430, 26], rich:true, onclick_event: "festival_select_small"})
         middle_festival : button({margin{centerx:-215, bottom:-110 }, size[430, 26], rich:true, onclick_event: "festival_select_middle"})
         large_festival  : button({margin{centerx:-215, bottom:-80 }, size[430, 26], rich:true, onclick_event: "festival_select_grand"})

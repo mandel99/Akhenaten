@@ -1,94 +1,80 @@
 #include "window/console.h"
 
-#include "city/city_warnings.h"
-#include "city/city.h"
-#include "game/game_events.h"
-#include "core/string.h"
-#include "core/log.h"
-#include "core/profiler.h"
-#include "game/cheats.h"
-#include "graphics/graphics.h"
 #include "building/construction/build_planner.h"
-#include "graphics/elements/image_button.h"
-#include "graphics/elements/lang_text.h"
-#include "graphics/elements/panel.h"
-#include "graphics/image_groups.h"
-#include "graphics/text.h"
+#include "city/city.h"
+#include "city/city_warnings.h"
+#include "core/log.h"
+#include "game/cheats.h"
+#include "game/game_events.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "window/autoconfig_window.h"
 #include "window/window_city.h"
-#include "widget/input_box.h"
 
-#include "js/js_game.h"
+namespace {
 
-static void send_command(int param1, int param2);
-static void button_back(int param1, int param2);
+struct console_window_t : autoconfig_window {
+    console_window_t() : autoconfig_window("console_window") {}
 
-static image_button image_buttons[] = {
-    {0, 2, 31, 20, IB_NORMAL, PACK_GENERAL, 90, 8, button_back, button_none, 0, 0, 1},
-    {305, 0, 27, 27, IB_NORMAL, PACK_GENERAL, 193, 4, send_command, button_none, 1, 0, 1}
+    virtual int handle_mouse(const mouse* m) override { return 0; }
+    virtual int get_tooltip_text() override { return 0; }
+    virtual void draw_foreground(UiFlags flags) override {}
+    virtual xstring get_section() const override { return "console_window"; }
+
+    virtual void init() override {
+        autoconfig_window::init();
+        ui["command_input"].set_value("");
+        ui["back_btn"].onclick([this] { close(); });
+        ui["send_btn"].onclick([this] { send_command(); });
+    }
+
+    virtual int draw_background(UiFlags flags) override {
+        window_draw_underlying_window(UiFlags_None);
+        return autoconfig_window::draw_background(flags);
+    }
+
+    virtual int ui_handle_mouse(const mouse* m) override {
+        autoconfig_window::ui_handle_mouse(m);
+
+        if (input_go_back_requested(m, hotkey_state())) {
+            close();
+            return 0;
+        }
+
+        if (ui["command_input"].dcast_einput() && input_box_is_accepted(&ui["command_input"].dcast_einput()->_box)) {
+            send_command();
+        }
+
+        return 0;
+    }
+
+    void close() {
+        ui::stop_active_input();
+        window_go_back();
+    }
+
+    void send_command() {
+        xstring command = ui["command_input"].get_value();
+        close();
+        logs::info("Command received: %s", command.c_str());
+        events::emit(event_city_warning{ command });
+        game_cheat_parse_command(command.c_str());
+    }
 };
 
-static input_box command_input = {160, 208, 20, 2, FONT_NORMAL_WHITE_ON_DARK};
+console_window_t g_console_window;
 
-static bstring64 command = "";
-
-static void init(void) {
-    input_box_start(&command_input, (uint8_t*)command, command.capacity, 1);
-}
-
-static void draw_foreground(int) {
-    graphics_set_to_dialog();
-    outer_panel_draw(vec2i{128, 160}, 24, 8);
-    text_draw_centered((uint8_t*)"Console", 128, 172, 384, FONT_LARGE_BLACK_ON_LIGHT, 0);
-    lang_text_draw(13, 5, 352, 256, FONT_NORMAL_BLACK_ON_LIGHT);
-    lang_text_draw(12, 0, 200, 256, FONT_NORMAL_BLACK_ON_LIGHT);
-    input_box_draw(&command_input);
-
-    image_buttons_draw({159, 249}, image_buttons, 2);
-
-    graphics_reset_dialog();
-}
-
-static void handle_input(const mouse* m, const hotkeys* h) {
-    const mouse* m_dialog = mouse_in_dialog(m);
-    if (input_box_handle_mouse(m_dialog, &command_input) || image_buttons_handle_mouse(m_dialog, {159, 249}, image_buttons, 2, 0)) {
-        return;
-    }
-   
-    if (input_box_is_accepted(&command_input)) {
-        send_command(0, 0);
-        return;
-    }
-
-    if (input_go_back_requested(m, h)) {
-        button_back(0, 0);
-    }
-}
-
-static void button_back(int param1, int param2) {
-    input_box_stop(&command_input);
-    window_go_back();
-}
-
-static void send_command(int param1, int param2) {
-    xstring command_copy;
-    command_copy = (pcstr)command_input.text;
-    button_back(0, 0);
-    logs::info("Command received: %s", command_copy.c_str());
-    events::emit(event_city_warning{ command_copy });
-    game_cheat_parse_command(command_copy.c_str());
 }
 
 void window_console_show() {
     static window_type window = {
         "window_file_dialog",
-        window_draw_underlying_window,
-        draw_foreground,
-        handle_input
+        [] (int flags) { g_console_window.draw_background(flags); },
+        [] (int flags) { g_console_window.ui_draw_foreground(flags); },
+        [] (const mouse* m, const hotkeys* h) { g_console_window.ui_handle_mouse(m); }
     };
 
-    init();
+    g_console_window.init();
     window_show(&window);
 }
 

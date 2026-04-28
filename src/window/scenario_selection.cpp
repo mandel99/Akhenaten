@@ -13,7 +13,9 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "window/autoconfig_window.h"
 #include "input/input.h"
+#include "platform/renderer.h"
 #include "content/vfs.h"
 #include "io/gamestate/boilerplate.h"
 #include "message_dialog.h"
@@ -39,6 +41,9 @@ static void on_scroll(void);
 
 static image_button start_button = {600, 440, 27, 27, IB_NORMAL, PACK_GENERAL, 193, 4, button_start_scenario, button_none, 1, 0, 1};
 
+static constexpr int SCENARIO_SELECTION_DIALOG_W = 640;
+static constexpr int SCENARIO_SELECTION_DIALOG_H = 480;
+
 #define MAX_SCENARIOS 15
 
 static scrollable_list_ui_params ui_params = [] {
@@ -60,6 +65,25 @@ struct window_scenario_selection_t {
 };
 
 window_scenario_selection_t g_window_scenario_selection;
+
+struct scenario_selection_window_t : autoconfig_window {
+    scenario_selection_window_t() : autoconfig_window("scenario_selection_window") {}
+
+    virtual int handle_mouse(const mouse* m) override { return 0; }
+    virtual int get_tooltip_text() override { return 0; }
+    virtual void draw_foreground(UiFlags flags) override {}
+
+    virtual int draw_background(UiFlags flags) override;
+    virtual void ui_draw_foreground(UiFlags flags) override;
+    virtual int ui_handle_mouse(const mouse* m) override;
+    virtual void init() override { autoconfig_window::init(); }
+    virtual xstring get_section() const override { return "scenario_selection_window"; }
+
+    static scenario_selection_window_t& instance() {
+        static scenario_selection_window_t inst;
+        return inst;
+    }
+};
 
 // scrollable_list queues draw commands with ui:: offset; flush runs after the dialog viewport is reset,
 // so positions must be absolute screen coords (dialog origin + list position inside the 640x480 layout).
@@ -414,32 +438,10 @@ static void draw_side_panel_info() {
     }
 }
 
-static void draw_background(int) {
-    auto &data = g_window_scenario_selection;
-    painter ctx = game.painter();
-    switch (data.dialog) {
-    case MAP_SELECTION_CCK_LEGACY:
-        ImageDraw::img_background(ctx, image_id_from_group(GROUP_MAP_SELECTION_CCK));
-        break;
-    case MAP_SELECTION_CUSTOM:
-        ImageDraw::img_background(ctx, image_id_from_group(GROUP_MAP_SELECTION_CUSTOM));
-        break;
-    case MAP_SELECTION_CAMPAIGN:
-    case MAP_SELECTION_CAMPAIGN_SINGLE_LIST:
-        ImageDraw::img_background(ctx, image_id_from_group(GROUP_MAP_SELECTION_HISTORY));
-        break;
-    }
-    graphics_set_to_dialog();
-    if (data.dialog != MAP_SELECTION_CAMPAIGN) {
-        scenario_scroll_list_draw(data.panel);
-        draw_side_panel_info();
-    }
-    graphics_reset_dialog();
-}
-static void draw_foreground(int) {
+static void draw_foreground_content() {
     painter ctx = game.painter();
     auto &data = g_window_scenario_selection;
-    graphics_set_to_dialog();
+    graphics_in_dialog_with_size(SCENARIO_SELECTION_DIALOG_W, SCENARIO_SELECTION_DIALOG_H);
 
     switch (data.dialog) {
     case MAP_SELECTION_CUSTOM:
@@ -569,15 +571,55 @@ static void handle_input(const mouse* m, const hotkeys* h) {
     }
 }
 
+int scenario_selection_window_t::draw_background(UiFlags flags) {
+    auto& ui = this->ui;
+    const image_t* bg = nullptr;
+    switch (g_window_scenario_selection.dialog) {
+    case MAP_SELECTION_CCK_LEGACY:
+        bg = image_get(image_id_from_group(GROUP_MAP_SELECTION_CCK));
+        break;
+    case MAP_SELECTION_CUSTOM:
+        bg = image_get(image_id_from_group(GROUP_MAP_SELECTION_CUSTOM));
+        break;
+    case MAP_SELECTION_CAMPAIGN:
+    case MAP_SELECTION_CAMPAIGN_SINGLE_LIST:
+        bg = image_get(image_id_from_group(GROUP_MAP_SELECTION_HISTORY));
+        break;
+    }
+    if (bg) {
+        ui["background_image"].image(bg->desc());
+    }
+    if (!_is_inited) {
+        init();
+        _is_inited = true;
+    }
+
+    g_render.clear_screen();
+    update_window_pos();
+    ui.begin_widget(pos);
+    ui.draw(flags);
+    ui.end_widget();
+    return 0;
+}
+
+void scenario_selection_window_t::ui_draw_foreground(UiFlags flags) {
+    draw_foreground_content();
+}
+
+int scenario_selection_window_t::ui_handle_mouse(const mouse* m) {
+    handle_input(m, hotkey_state());
+    return 1;
+}
+
 void window_scenario_selection_show(int dialog_type) {
-    // city construction kit
-    window_type window = {
+    static window_type window = {
         "window_cck_selection",
-        draw_background,
-        draw_foreground,
-        handle_input
+        [] (int flags) { scenario_selection_window_t::instance().draw_background(flags); },
+        [] (int flags) { scenario_selection_window_t::instance().ui_draw_foreground(flags); },
+        [] (const mouse* m, const hotkeys* h) { scenario_selection_window_t::instance().ui_handle_mouse(m); }
     };
     init((e_map_selection_dialog_type)dialog_type);
+    scenario_selection_window_t::instance().init();
     window_show(&window);
 }
 ANK_FUNCTION_1(window_scenario_selection_show)

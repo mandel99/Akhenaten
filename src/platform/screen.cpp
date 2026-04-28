@@ -9,6 +9,7 @@
 #include "graphics/image.h"
 #include "graphics/screen.h"
 #include "game/game_config.h"
+#include "window/autoconfig_window.h"
 #include "arguments.h"
 #include "platform/android/android.h"
 #include "platform/platform.h"
@@ -238,7 +239,8 @@ bool platform_screen_t::resize(int pixel_width, int pixel_height, int save) {
     }
 
     if (platform_renderer_create_render_texture(logical_width, logical_height)) {
-        g_screen.set_resolution(logical_width, logical_height);
+        screen_set_resolution(logical_width, logical_height);
+        autoconfig_window::refresh_all();
         return true;
     }
 

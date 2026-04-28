@@ -173,15 +173,13 @@ void __game_download_latest_version() {
 ANK_FUNCTION(__game_download_latest_version)
 
 int main_menu_screen::draw_background(UiFlags flags) {
-    autoconfig_window::draw_background(flags);
-
     g_render.clear_screen();
+    autoconfig_window::draw_background(flags);
     return 0;
 }
 
 void main_menu_screen::draw_foreground(UiFlags flags) {
-    ui.begin_frame();
-    ui.draw();
+    autoconfig_window::ui_draw_foreground(flags);
 }
 
 void main_menu_screen::init() {

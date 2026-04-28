@@ -2,106 +2,87 @@
 
 #include "city/city.h"
 #include "city/victory.h"
-#include "graphics/graphics.h"
-#include "graphics/elements/generic_button.h"
-#include "graphics/elements/lang_text.h"
-#include "graphics/elements/panel.h"
-#include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
+#include "window/autoconfig_window.h"
 #include "window/window_city.h"
 
-static void button_accept(int param1, int param2);
-static void button_continue_governing(int months, int param2);
+namespace {
 
-static generic_button victory_buttons[] = {
-  {32, 112, 480, 20, button_accept, button_none, 0, 0},
-  {32, 144, 480, 20, button_continue_governing, button_none, 24, 0},
-  {32, 176, 480, 20, button_continue_governing, button_none, 60, 0},
+struct victory_dialog_window_t : autoconfig_window {
+    victory_dialog_window_t() : autoconfig_window("victory_dialog_window") {}
+
+    virtual int handle_mouse(const mouse* m) override { return 0; }
+    virtual int get_tooltip_text() override { return 0; }
+    virtual void draw_foreground(UiFlags flags) override {}
+    virtual xstring get_section() const override { return "victory_dialog_window"; }
+
+    virtual void init() override {
+        autoconfig_window::init();
+        ui["btn_primary"].onclick([] { window_city_show(); });
+        ui["btn_secondary"].onclick([] { continue_governing(24); });
+        ui["btn_tertiary"].onclick([] { continue_governing(60); });
+    }
+
+    virtual int draw_background(UiFlags flags) override {
+        window_draw_underlying_window(UiFlags_None);
+        sync_ui();
+        return autoconfig_window::draw_background(flags);
+    }
+
+    virtual void ui_draw_foreground(UiFlags flags) override {
+        sync_ui();
+        autoconfig_window::ui_draw_foreground(flags);
+    }
+
+    virtual int ui_handle_mouse(const mouse* m) override {
+        return autoconfig_window::ui_handle_mouse(m);
+    }
+
+    void sync_ui() {
+        const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
+        const int current_scenario = g_scenario.settings.campaign_mission_rank;
+        const int next_scenario = current_scenario + 1;
+        const bool won = (g_city.victory_state.state == e_victory_state_won);
+        const bool show_continue = (current_scenario >= 2 || is_custom_map) && won;
+
+        if (current_scenario < 10 || is_custom_map) {
+            ui["title"] = ui::str(62, 0);
+            ui["subtitle"].text_var("%s\n%s", ui::str(62, 2), ui::str(32, next_scenario));
+        } else {
+            ui["title"] = (pcstr)city_player_name();
+            ui["subtitle"] = ui::str(62, 26);
+        }
+
+        ui["btn_primary"] = ui::str(62, won ? (current_scenario < 10 || is_custom_map ? 3 : 27) : 6);
+        ui["btn_secondary"] = ui::str(62, 4);
+        ui["btn_tertiary"] = ui::str(62, 5);
+
+        ui["btn_secondary"].enabled = show_continue;
+        ui["btn_tertiary"].enabled = show_continue;
+    }
+
+    static void continue_governing(int months) {
+        g_city.victory_state.continue_governing(months);
+        window_city_show();
+        g_city.victory_state.reset();
+        g_sound.music_update(true);
+    }
 };
 
-static int focus_button_id = 0;
+victory_dialog_window_t g_victory_dialog_window;
 
-static void draw_background(int) {
-    window_draw_underlying_window(UiFlags_None);
-    graphics_set_to_dialog();
-
-    outer_panel_draw(vec2i{48, 128}, 34, 15);
-
-    const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
-    const int current_scenario = g_scenario.settings.campaign_mission_rank;
-    const int next_scenario = current_scenario + 1;
-    if (current_scenario < 10 || is_custom_map) {
-        lang_text_draw_centered(62, 0, 48, 144, 544, FONT_LARGE_BLACK_ON_LIGHT);
-        lang_text_draw_centered(62, 2, 48, 175, 544, FONT_NORMAL_BLACK_ON_LIGHT);
-        lang_text_draw_centered(32, next_scenario, 48, 194, 544, FONT_LARGE_BLACK_ON_LIGHT);
-    } else {
-        text_draw_centered(city_player_name(), 48, 144, 512, FONT_LARGE_BLACK_ON_LIGHT, 0);
-        lang_text_draw_multiline(62, 26, vec2i{64, 175}, 480, FONT_NORMAL_BLACK_ON_LIGHT);
-    }
-    graphics_reset_dialog();
-}
-
-static void draw_foreground(int) {
-    graphics_set_to_dialog();
-
-    const int current_scenario = g_scenario.settings.campaign_mission_rank;
-    if (g_city.victory_state.state == e_victory_state_won) {
-        large_label_draw(80, 240, 30, focus_button_id == 1);
-        const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
-
-        if (current_scenario < 10 || is_custom_map)
-            lang_text_draw_centered(62, 3, 80, 246, 480, FONT_NORMAL_BLACK_ON_DARK);
-        else {
-            lang_text_draw_centered(62, 27, 80, 246, 480, FONT_NORMAL_BLACK_ON_DARK);
-        }
-
-        if (current_scenario >= 2 || is_custom_map) {
-            // Continue for 2/5 years
-            large_label_draw(80, 272, 30, focus_button_id == 2);
-            lang_text_draw_centered(62, 4, 80, 278, 480, FONT_NORMAL_BLACK_ON_DARK);
-
-            large_label_draw(80, 304, 30, focus_button_id == 3);
-            lang_text_draw_centered(62, 5, 80, 310, 480, FONT_NORMAL_BLACK_ON_DARK);
-        }
-    } else {
-        // lost
-        large_label_draw(80, 224, 30, focus_button_id == 1);
-        lang_text_draw_centered(62, 6, 80, 230, 480, FONT_NORMAL_BLACK_ON_DARK);
-    }
-    graphics_reset_dialog();
-}
-
-static void handle_input(const mouse* m, const hotkeys* h) {
-    int num_buttons;
-    const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
-    const int current_scenario = g_scenario.settings.campaign_mission_rank;
-    if (current_scenario >= 2 || is_custom_map) {
-        num_buttons = 3;
-    } else {
-        num_buttons = 1;
-    }
-    generic_buttons_handle_mouse(mouse_in_dialog(m), {48, 128}, victory_buttons, num_buttons, &focus_button_id, nullptr);
-}
-
-static void button_accept(int param1, int param2) {
-    window_city_show();
-}
-
-static void button_continue_governing(int months, int param2) {
-    g_city.victory_state.continue_governing(months);
-    window_city_show();
-    g_city.victory_state.reset();
-    g_sound.music_update(/*force*/true);
 }
 
 void window_victory_dialog_show(void) {
     static window_type window = {
         "window_victory_dialog",
-        draw_background,
-        draw_foreground,
-        handle_input
+        [] (int flags) { g_victory_dialog_window.draw_background(flags); },
+        [] (int flags) { g_victory_dialog_window.ui_draw_foreground(flags); },
+        [] (const mouse* m, const hotkeys* h) { g_victory_dialog_window.ui_handle_mouse(m); }
     };
+
+    g_victory_dialog_window.init();
     window_show(&window);
 }

@@ -50,11 +50,42 @@ void ImageDraw::img_background(painter& ctx, int image_id, float scale, vec2i of
     }
 
     if (scale == -1) {
-        //        graphics_renderer()->draw_image(img, 0, 0, COLOR_MASK_NONE, scale, false); // todo?
+        return;
     }
-    else {
-        ctx.draw_image(img, vec2i{ (screen_width() - img->width) / 2, (screen_height() - img->height) / 2 } + offset, COLOR_MASK_NONE, scale);
+
+    ctx.draw_image(img, vec2i{ (screen_width() - img->width) / 2, (screen_height() - img->height) / 2 } + offset, COLOR_MASK_NONE, scale);
+}
+
+void ImageDraw::img_background_cover(painter& ctx, int image_id, float scale, vec2i offset) {
+    const image_t* img = image_get(image_id);
+    if (!img) {
+        return;
     }
+
+    if (scale == -1) {
+        return;
+    }
+
+    const int target_width = screen_width();
+    const int target_height = screen_height();
+    if (target_width <= 0 || target_height <= 0 || img->width <= 0 || img->height <= 0) {
+        return;
+    }
+
+    const float scale_x = target_width / static_cast<float>(img->width);
+    const float scale_y = target_height / static_cast<float>(img->height);
+    const float draw_scale = std::max(scale_x, scale_y) * scale;
+
+    const vec2i scaled_size{
+        static_cast<int>(img->width * draw_scale),
+        static_cast<int>(img->height * draw_scale)
+    };
+    const vec2i draw_pos = vec2i{
+        (target_width - scaled_size.x) / 2,
+        (target_height - scaled_size.y) / 2
+    } + offset;
+
+    ctx.draw_image(img, draw_pos, COLOR_MASK_NONE, draw_scale);
 }
 
 

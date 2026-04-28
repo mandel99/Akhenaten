@@ -593,9 +593,11 @@ namespace ui {
     struct ebackground : public element {
         image_desc img_desc;
         float scale = 1.f;
+        bool cover = false;
 
         virtual void draw(UiFlags flags) override;
         virtual void load(archive elem, element* parent, items& elems) override;
+        virtual void image(const image_desc& image) override { img_desc = image; }
         virtual image_desc image() const override { return img_desc; }
     };
 
@@ -940,6 +942,7 @@ namespace ui {
 
     struct widget {
         vec2i pos;
+        bool center_window = false;
         bool check_errors;
         e_font default_font = FONT_INVALID;
         element::items elements;
@@ -949,6 +952,7 @@ namespace ui {
         virtual void draw(UiFlags flags = UiFlags_None);
         virtual void archive_load(archive arch);
         void load(xstring section);
+        void update_window_pos();
 
         widget() : ui(*this) {}
 
@@ -1034,6 +1038,7 @@ template <>
 inline void archive::r<ui::widget>(pcstr name, ui::widget& v) {
     v.elements.clear();
     v.pos = r_vec2i("pos");
+    v.center_window = r_bool("center_window", false);
     e_font default_font = r_type<e_font>("default_font", FONT_NORMAL_BLACK_ON_LIGHT);
 
     ui_widget_load_elements(*this, name, nullptr, v.elements);

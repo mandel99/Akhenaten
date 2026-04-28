@@ -96,6 +96,7 @@ namespace render_cmd {
 namespace ImageDraw {
 
 void img_background(painter &ctx, int image_id, float scale = 1.0f, vec2i offset = {0, 0});
+void img_background_cover(painter &ctx, int image_id, float scale = 1.0f, vec2i offset = {0, 0});
 
 void apply_render_commands(painter& ctx, std::string_view p);
 void execute_render_command(painter& ctx, const render_command_t& command);

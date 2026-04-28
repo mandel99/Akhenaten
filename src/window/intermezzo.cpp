@@ -57,7 +57,6 @@ static void init(int mission_id, intermezzo_type type, std::function<void()> cal
 static void draw_background(int) {
     g_render.clear_screen();
     graphics_reset_dialog();
-    vec2i offset = vec2i{screen_width() - 1024, screen_height() - 768} / 2;
 
     // draw background by mission
     int mission = g_scenario.campaign_scenario_id();
@@ -65,12 +64,14 @@ static void draw_background(int) {
     painter ctx = game.painter();
     const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
     if (g_intermezzo_data.type == INTERMEZZO_MISSION_BRIEFING) {
-        ctx.img_generic(is_custom_map ? image_base + 1 : image_base + 1 + (mission >= 20), offset);
+        ImageDraw::img_background_cover(ctx, is_custom_map ? image_base + 1 : image_base + 1 + (mission >= 20));
 
     } else if (g_intermezzo_data.type == INTERMEZZO_FIRED) {
+        vec2i offset = vec2i{screen_width() - 1024, screen_height() - 768} / 2;
         ctx.img_generic(image_base, offset);
 
     } else if (g_intermezzo_data.type == INTERMEZZO_WON) {
+        vec2i offset = vec2i{screen_width() - 1024, screen_height() - 768} / 2;
         ctx.img_generic(is_custom_map ? image_base + 2 : image_base, offset);
     }
 }

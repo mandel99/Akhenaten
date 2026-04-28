@@ -1,15 +1,16 @@
 [es=window]
 window_new_career {
+    center_window : true
     pos [(sw(0) - px(24))/2, (sh(0) - px(8))/2]
     allow_rmb_goback : true
     player_name_value : ""
     ui {
-        background_image: background({pack:PACK_UNLOADED, id:31})
+        background_image: background({pack:PACK_UNLOADED, id:31, cover:true})
         background : outer_panel({size[24, 8]})
-        title      : text_center({pos[0, 12], size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT, text[31, 0]})
-        player_name: input({margin{left:32, top:48}, size[20, 2], font:FONT_NORMAL_WHITE_ON_DARK, max_length:31, allow_punctuation:1, oninput: new_career_on_input})
-        btn_back   : button({margin{left:31, top:89}, size[px(9), 26], text[12, 0], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: new_career_btn_back})
-        btn_ok     : button({margin{centerx:16, top:89}, size[px(9), 26], text[13, 5], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: new_career_btn_ok})
+        title      : text_center({margin{top:12}, size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT, text[31, 0]})
+        player_name: input({margin{centerx:-160, top:48}, size[20, 2], font:FONT_NORMAL_WHITE_ON_DARK, max_length:31, allow_punctuation:1, oninput: new_career_on_input})
+        btn_back   : button({margin{centerx:-161, bottom:-13}, size[px(9), 26], text[12, 0], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: new_career_btn_back})
+        btn_ok     : button({margin{centerx:16, bottom:-13}, size[px(9), 26], text[13, 5], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: new_career_btn_ok})
     }
 }
 

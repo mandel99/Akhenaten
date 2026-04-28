@@ -2,26 +2,27 @@ log_info("akhenaten: records window started")
 
 [es=window]
 records_window {
+    center_window : true
     pos [(sw(0) - px(40))/2, (sh(0) - px(30))/2]
     allow_rmb_goback : true
 
     ui {
-        background_image : background({pack:PACK_UNLOADED, id:9})
+        background_image : background({pack:PACK_UNLOADED, id:9, cover:true})
         background       : outer_panel({size[40, 30]})
         title            : header({text[296, 0]
                                    font:FONT_LARGE_BLACK_ON_LIGHT, size[px(40), 20], multiline:false, align:"center"
                                    margin{top:20}})
 
-        record_0  : text({pos[16, 70],  size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_1  : text({pos[16, 86],  size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_2  : text({pos[16, 102], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_3  : text({pos[16, 118], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_4  : text({pos[16, 134], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_5  : text({pos[16, 150], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_6  : text({pos[16, 166], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_7  : text({pos[16, 182], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_8  : text({pos[16, 198], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
-        record_9  : text({pos[16, 214], size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_0  : text({margin{centerx:-264, top:70},  size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_1  : text({margin{centerx:-264, top:86},  size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_2  : text({margin{centerx:-264, top:102}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_3  : text({margin{centerx:-264, top:118}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_4  : text({margin{centerx:-264, top:134}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_5  : text({margin{centerx:-264, top:150}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_6  : text({margin{centerx:-264, top:166}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_7  : text({margin{centerx:-264, top:182}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_8  : text({margin{centerx:-264, top:198}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
+        record_9  : text({margin{centerx:-264, top:214}, size[px(33), 16], font:FONT_NORMAL_BLACK_ON_LIGHT})
 
         bottom_text : text({text[31, 1]
                             font:FONT_NORMAL_BLACK_ON_LIGHT, size[px(40), 20], multiline:false, align:"center"

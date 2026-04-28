@@ -1,12 +1,15 @@
 #include "window_mission_briefing.h"
 
+#include "core/profiler.h"
 #include "game/game_events.h"
+#include "game/game.h"
+#include "game/mission.h"
+#include "graphics/graphics.h"
 #include "graphics/window.h"
+#include "js/js_game.h"
+#include "platform/renderer.h"
 #include "scenario/scenario.h"
 #include "window/intermezzo.h"
-#include "core/profiler.h"
-#include "game/mission.h"
-#include "js/js_game.h"
 
 ui::mission_briefing_window g_mission_briefing;
 
@@ -20,6 +23,12 @@ ANK_FUNCTION_1(__game_mission_branch_start)
 
 void ui::mission_briefing_window::init() {
     autoconfig_window::init();
+    const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
+    const int mission = g_scenario.campaign_scenario_id();
+    const int image_base = image_id_from_group(GROUP_INTERMEZZO_BACKGROUND);
+    if (const image_t* bg = image_get(is_custom_map ? image_base + 1 : image_base + 1 + (mission >= 20))) {
+        ui["background_image"].image(bg->desc());
+    }
 
     if (!g_mission_briefing.campaign_mission_loaded) {
         g_mission_briefing.campaign_mission_loaded = 1;
@@ -35,8 +44,15 @@ void ui::mission_briefing_window::update_goals_list(const xstring& goal) {
 }
 
 int ui::mission_briefing_window::draw_background(UiFlags flags) {
+    const bool is_custom_map = (g_scenario.mode() != e_scenario_normal);
+    const int mission = g_scenario.campaign_scenario_id();
+    const int image_base = image_id_from_group(GROUP_INTERMEZZO_BACKGROUND);
+    const int image_id = is_custom_map ? image_base + 1 : image_base + 1 + (mission >= 20);
+
+    g_render.clear_screen();
+    painter ctx = game.painter();
+    ImageDraw::img_background_cover(ctx, image_id);
     autoconfig_window::draw_background(flags);
-    window_draw_underlying_window(UiFlags_None);
 
     update_goals_list(g_scenario.goal_tooltip);
 

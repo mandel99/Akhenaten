@@ -1,152 +1,132 @@
 #include "numeric_input.h"
 
-#include "graphics/graphics.h"
-#include "graphics/color.h"
-#include "graphics/elements/generic_button.h"
-#include "graphics/elements/lang_text.h"
-#include "graphics/elements/panel.h"
-#include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
 #include "input/keyboard.h"
 #include "sound/sound.h"
+#include "window/autoconfig_window.h"
 
+namespace {
 
-static void button_number(int number, int param2);
-static void button_accept(int param1, int param2);
-static void button_cancel(int param1, int param2);
+void numeric_input_on_digit(int number);
 
-static void input_number(int number);
-static void input_accept(void);
+struct numeric_input_window_t : autoconfig_window {
+    int max_digits = 0;
+    int max_value = 0;
+    void (*callback)(int) = nullptr;
+    int num_digits = 0;
+    int value = 0;
 
-static generic_button buttons[] = {{21, 51, 25, 25, button_number, button_none, 1, 0},
-                                   {51, 51, 25, 25, button_number, button_none, 2, 0},
-                                   {81, 51, 25, 25, button_number, button_none, 3, 0},
-                                   {21, 81, 25, 25, button_number, button_none, 4, 0},
-                                   {51, 81, 25, 25, button_number, button_none, 5, 0},
-                                   {81, 81, 25, 25, button_number, button_none, 6, 0},
-                                   {21, 111, 25, 25, button_number, button_none, 7, 0},
-                                   {51, 111, 25, 25, button_number, button_none, 8, 0},
-                                   {81, 111, 25, 25, button_number, button_none, 9, 0},
-                                   {21, 141, 25, 25, button_number, button_none, 0, 0},
-                                   {51, 141, 55, 25, button_accept, button_none, 1, 0},
-                                   {21, 171, 85, 25, button_cancel, button_none, 1, 0}};
+    numeric_input_window_t() : autoconfig_window("numeric_input_window") {}
 
-struct numeric_input_t : public vec2i {
-    int max_digits;
-    int max_value;
-    void (*callback)(int);
+    virtual int handle_mouse(const mouse* m) override { return 0; }
+    virtual int get_tooltip_text() override { return 0; }
+    virtual void draw_foreground(UiFlags flags) override {}
+    virtual xstring get_section() const override { return "numeric_input_window"; }
 
-    int num_digits;
-    int value;
-    int focus_button_id;
+    virtual void init() override {
+        autoconfig_window::init();
+
+        ui["num0"].onclick([this] { input_number(0); });
+        ui["num1"].onclick([this] { input_number(1); });
+        ui["num2"].onclick([this] { input_number(2); });
+        ui["num3"].onclick([this] { input_number(3); });
+        ui["num4"].onclick([this] { input_number(4); });
+        ui["num5"].onclick([this] { input_number(5); });
+        ui["num6"].onclick([this] { input_number(6); });
+        ui["num7"].onclick([this] { input_number(7); });
+        ui["num8"].onclick([this] { input_number(8); });
+        ui["num9"].onclick([this] { input_number(9); });
+        ui["accept_btn"].onclick([this] { input_accept(); });
+        ui["cancel_btn"].onclick([this] { close(); });
+
+        keyboard_start_capture_numeric(numeric_input_on_digit);
+        sync_ui();
+    }
+
+    virtual int draw_background(UiFlags flags) override {
+        sync_ui();
+        return autoconfig_window::draw_background(flags);
+    }
+
+    virtual void ui_draw_foreground(UiFlags flags) override {
+        sync_ui();
+        autoconfig_window::ui_draw_foreground(flags);
+    }
+
+    virtual int ui_handle_mouse(const mouse* m) override {
+        autoconfig_window::ui_handle_mouse(m);
+
+        const hotkeys* h = hotkey_state();
+        if (input_go_back_requested(m, h)) {
+            close();
+        }
+
+        if (h->enter_pressed) {
+            input_accept();
+        }
+
+        return 0;
+    }
+
+    void sync_ui() {
+        if (num_digits > 0) {
+            ui["value"].text_var("%d", value);
+        } else {
+            ui["value"] = "";
+        }
+    }
+
+    void input_number(int number) {
+        if (num_digits < max_digits) {
+            value = value * 10 + number;
+            num_digits++;
+            g_sound.play_effect(SOUND_EFFECT_BUILD);
+        }
+    }
+
+    void input_accept() {
+        close();
+        if (value > max_value) {
+            value = max_value;
+        }
+        if (callback) {
+            callback(value);
+        }
+    }
+
+    void close() {
+        keyboard_stop_capture_numeric();
+        window_go_back();
+    }
 };
 
-numeric_input_t g_numeric_input;
+numeric_input_window_t g_numeric_input_window;
 
-static void init(int x, int y, int max_digits, int max_value, void (*callback)(int)) {
-    auto &data = g_numeric_input;
-    data.x = x;
-    data.y = y;
-    data.max_digits = max_digits;
-    data.max_value = max_value;
-    data.callback = callback;
-    data.num_digits = 0;
-    data.value = 0;
-    data.focus_button_id = 0;
-    keyboard_start_capture_numeric(input_number);
+void numeric_input_on_digit(int number) {
+    g_numeric_input_window.input_number(number);
 }
 
-static void close(void) {
-    keyboard_stop_capture_numeric();
-    window_go_back();
 }
 
-static void draw_number_button(int x, int y, int number, int is_selected) {
-    color color = is_selected ? COLOR_FONT_BLUE : COLOR_BLACK;
-    graphics_draw_rect(vec2i{x, y}, vec2i{25, 25}, color);
-    uint8_t number_string[2];
-    number_string[0] = '0' + number;
-    number_string[1] = 0;
-    text_draw_centered(number_string, x, y, 25, FONT_NORMAL_BLUE, color);
-}
-
-static void draw_foreground(int) {
-    auto &data = g_numeric_input;
-    outer_panel_draw(data, 8, 14);
-
-    ui::fill_rect(vec2i{data.x + 16, data.y + 16}, vec2i{96, 30}, COLOR_BLACK);
-    if (data.num_digits > 0)
-        text_draw_number_centered_colored(data.value, data.x + 16, data.y + 19, 92, FONT_NORMAL_BLUE, COLOR_FONT_RED);
-
-    draw_number_button(data.x + 21, data.y + 51, 1, data.focus_button_id == 1);
-    draw_number_button(data.x + 51, data.y + 51, 2, data.focus_button_id == 2);
-    draw_number_button(data.x + 81, data.y + 51, 3, data.focus_button_id == 3);
-    draw_number_button(data.x + 21, data.y + 81, 4, data.focus_button_id == 4);
-    draw_number_button(data.x + 51, data.y + 81, 5, data.focus_button_id == 5);
-    draw_number_button(data.x + 81, data.y + 81, 6, data.focus_button_id == 6);
-    draw_number_button(data.x + 21, data.y + 111, 7, data.focus_button_id == 7);
-    draw_number_button(data.x + 51, data.y + 111, 8, data.focus_button_id == 8);
-    draw_number_button(data.x + 81, data.y + 111, 9, data.focus_button_id == 9);
-    draw_number_button(data.x + 21, data.y + 141, 0, data.focus_button_id == 10);
-
-    graphics_draw_rect(vec2i{data.x + 51, data.y + 141}, vec2i{55, 25}, data.focus_button_id == 11 ? COLOR_FONT_BLUE : COLOR_BLACK);
-    lang_text_draw_centered_colored(44,16,data.x + 51, data.y + 147, 55, FONT_SMALL_PLAIN, data.focus_button_id == 11 ? COLOR_FONT_BLUE : COLOR_BLACK);
-
-    graphics_draw_rect(vec2i{data.x + 21, data.y + 171}, vec2i{85, 25}, data.focus_button_id == 12 ? COLOR_FONT_BLUE : COLOR_BLACK);
-    lang_text_draw_centered_colored(44, 17, data.x + 21, data.y + 177, 85, FONT_SMALL_PLAIN, data.focus_button_id == 12 ? COLOR_FONT_BLUE : COLOR_BLACK);
-}
-
-static void handle_input(const mouse* m, const hotkeys* h) {
-    auto &data = g_numeric_input;
-    if (generic_buttons_handle_mouse(m, data, buttons, 12, &data.focus_button_id, nullptr))
-        return;
-
-    if (input_go_back_requested(m, h))
-        close();
-
-    if (h->enter_pressed)
-        input_accept();
-}
-
-static void button_number(int number, int param2) {
-    input_number(number);
-}
-
-static void button_accept(int param1, int param2) {
-    input_accept();
-}
-
-static void button_cancel(int param1, int param2) {
-    close();
-}
-
-static void input_number(int number) {
-    auto &data = g_numeric_input;
-    if (data.num_digits < data.max_digits) {
-        data.value = data.value * 10 + number;
-        data.num_digits++;
-        g_sound.play_effect(SOUND_EFFECT_BUILD);
-    }
-}
-
-static void input_accept() {
-    auto &data = g_numeric_input;
-
-    close();
-    if (data.value > data.max_value)
-        data.value = data.max_value;
-
-    data.callback(data.value);
+void window_numeric_input_accept(void) {
+    g_numeric_input_window.input_accept();
 }
 
 void window_numeric_input_show(int x, int y, int max_digits, int max_value, void (*callback)(int)) {
     window_type window = {
-      "window_numeric_input",
-      [] (int) {},
-      draw_foreground,
-      handle_input,
+        "window_numeric_input",
+        [] (int flags) { g_numeric_input_window.draw_background(flags); },
+        [] (int flags) { g_numeric_input_window.ui_draw_foreground(flags); },
+        [] (const mouse* m, const hotkeys* h) { g_numeric_input_window.ui_handle_mouse(m); }
     };
-    init(x, y, max_digits, max_value, callback);
+
+    g_numeric_input_window.pos = {x, y};
+    g_numeric_input_window.max_digits = max_digits;
+    g_numeric_input_window.max_value = max_value;
+    g_numeric_input_window.callback = callback;
+    g_numeric_input_window.num_digits = 0;
+    g_numeric_input_window.value = 0;
+    g_numeric_input_window.init();
     window_show(&window);
 }

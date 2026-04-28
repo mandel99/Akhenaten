@@ -6,8 +6,10 @@ function get_difficulty_label() {
 }
 
 mission_briefing_window {
+    center_window : true
     pos [(sw(0) - px(38))/2, (sh(0) - px(27))/2],
     ui {
+        background_image : background({cover:true, fill_width:true, fill_height:true})
         background       : outer_panel({pos[16, 32], size{w:38, h:27} })
         title            : text({pos[32, 48], font : FONT_LARGE_BLACK_ON_LIGHT })
         subtitle         : text({pos[32, 78], font : FONT_NORMAL_BLACK_ON_LIGHT })

@@ -55,6 +55,7 @@ function display_options_window_es_apply_resolution(window) {
 
 [es=window]
 display_options_window {
+    center_window : true
     allow_rmb_goback : true
     draw_underlying: true
     pos [(sw(0) - px(24))/2, (sh(0) - px(21))/2]

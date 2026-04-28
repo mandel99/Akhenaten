@@ -1016,6 +1016,9 @@ void ui::einner_panel::load(archive arch, element* parent, items& elems) {
 
 void ui::widget::draw(UiFlags flags) {
     vec2i bsize = ui["background"].pxsize();
+    if (bsize.x <= 0 || bsize.y <= 0) {
+        bsize = screen_size();
+    }
 
     for (auto& e : elements) {
         if (!e->enabled) {
@@ -1049,6 +1052,7 @@ void ui::widget::draw(UiFlags flags) {
 void ui::widget::archive_load(archive arch) {
     elements.clear();
     pos = arch.r_vec2i("pos");
+    center_window = arch.r_bool("center_window", false);
     e_font default_font = arch.r_type<e_font>("default_font", FONT_NORMAL_BLACK_ON_LIGHT);
 
     ui_widget_load_elements(arch, "ui", nullptr, elements);
@@ -1063,6 +1067,24 @@ void ui::widget::archive_load(archive arch) {
 void ui::widget::load(xstring section) {
     io.name = section;
     g_config_arch.r(section.c_str(), *this);
+}
+
+void ui::widget::update_window_pos() {
+    if (!center_window || !contains("background")) {
+        return;
+    }
+
+    const auto& background = ui["background"];
+    const vec2i bg_pos = background.pos;
+    const vec2i bg_size = background.pxsize();
+    if (bg_size.x <= 0 || bg_size.y <= 0) {
+        return;
+    }
+
+    pos = {
+        (screen_width() - (bg_pos.x + bg_size.x)) / 2,
+        (screen_height() - (bg_pos.y + bg_size.y)) / 2
+    };
 }
 
 bool ui::widget::contains(const xstring& id) const {
@@ -1186,7 +1208,11 @@ void ui::eimg::image(int image) {
 void ui::ebackground::draw(UiFlags flags) {
     painter ctx = game.painter();
     scr_pos = pos;
-    ImageDraw::img_background(ctx, img_desc.tid(), 1.f, pos);
+    if (cover) {
+        ImageDraw::img_background_cover(ctx, img_desc.tid(), scale, pos);
+    } else {
+        ImageDraw::img_background(ctx, img_desc.tid(), scale, pos);
+    }
 }
 
 void ui::ebackground::load(archive arch, element* parent, items& elems) {
@@ -1195,6 +1221,7 @@ void ui::ebackground::load(archive arch, element* parent, items& elems) {
     xstring type = arch.r_string("type");
     assert(type == "background");
     scale = arch.r_float("scale", 1.f);
+    cover = arch.r_bool("cover", false);
     img_desc.pack = arch.r_int("pack");
     img_desc.id = arch.r_int("id");
     img_desc.offset = arch.r_int("offset");

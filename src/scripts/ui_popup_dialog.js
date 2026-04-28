@@ -1,6 +1,7 @@
 log_info("akhenaten: ui popup dialog started")
 
 window_popup_dialog_yesno = {
+    center_window : true
     pos: [(sw(0) - px(30))/2, (sh(0) - px(10))/2]
     ui : {
         background : outer_panel({size: [30, 10] })
@@ -14,6 +15,7 @@ window_popup_dialog_yesno = {
 }
 
 window_popup_dialog_ok {
+    center_window : true
     pos [(sw(0) - px(30))/2, (sh(0) - px(10))/2]
     ui {
         background : outer_panel({size[30, 10] })

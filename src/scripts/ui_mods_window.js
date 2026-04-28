@@ -41,12 +41,13 @@ function mods_unpack_scripts() {
 
 [es=window]
 mods_window {
+    center_window : true
     pos: [(sw(0) - px(40)) / 2, (sh(0) - px(30)) / 2]
     allow_rmb_goback : true
     refresh_mods_text : ""
     refresh_mods_text_dots : 0
     ui {
-        background_image : background({pack:PACK_UNLOADED, id:9})
+        background_image : background({pack:PACK_UNLOADED, id:9, cover:true})
         background     : outer_panel({size[40, 30]})
         title          : header({text:"Mods"
                                font:FONT_LARGE_BLACK_ON_LIGHT, size[px(40), 20]
@@ -65,7 +66,7 @@ mods_window {
                                       onclick: __mods_download_info_async
                                     })
 
-        mods         : scrollable_list({pos[16, 75], size[36, 23], view_items:11,
+        mods         : scrollable_list({margin{centerx:-288, top:75}, size[36, 23], view_items:11,
                                         draw_scrollbar_always:true
                                         onrender_item: mods_window_on_render_item
                                         ondoubleclick_item: mods_window_on_double_click })

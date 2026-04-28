@@ -250,6 +250,7 @@ function window_features_btn_next(p1, p2) {
 
 [es=window]
 window_features {
+    center_window : true
     pos: [(sw(0) - px(40))/2, (sh(0) - px(30))/2]
     default_font : FONT_NORMAL_BLACK_ON_LIGHT
     pages : []
@@ -258,10 +259,10 @@ window_features {
     needs_rebuild : true
 
     ui : {
-        background_image: background({pack:PACK_UNLOADED, id:8})
+        background_image: background({pack:PACK_UNLOADED, id:8, cover:true})
         background    : outer_panel({size: [40, 30] })
 
-        title         : text({pos:[0, 16], size:[px(40), 20], align:"center", font:FONT_LARGE_BLACK_ON_LIGHT})
+        title         : text({margin:{top:16}, size:[px(40), 20], align:"center", font:FONT_LARGE_BLACK_ON_LIGHT})
 
         btn_prev      : button({margin:{left:20, top:16}, size:[50, 25], text:"Prev",  onclick: window_features_btn_prev})
         btn_next      : button({margin:{right:-70, top:16}, size:[50, 25], text:"Next", onclick: window_features_btn_next})
@@ -295,10 +296,10 @@ window_features {
         bfeature13    : checkbox({pos:wposbtn(13)})
         tfeature13    : text({pos:wpostxt(13) })
 
-        btn_defaults  : button({pos:[250, 436], size:[150, 30], text:"#TR_BUTTON_RESET_DEFAULTS",      onclick: window_features_btn_defaults}),
-        btn_hotkeys   : button({pos:[90,  436], size:[150, 30], text:"#TR_BUTTON_CONFIGURE_HOTKEYS",   onclick: window_features_btn_hotkeys}),
-        btn_close     : button({pos:[410, 436], size:[100, 30], text:"#TR_BUTTON_CANCEL",              onclick: window_features_btn_close}),
-        btn_save      : button({pos:[520, 436], size:[100, 30], text:"#TR_BUTTON_OK",                  onclick: window_features_btn_save})
+        btn_defaults  : button({margin:{centerx:-70,  bottom:-44}, size:[150, 30], text:"#TR_BUTTON_RESET_DEFAULTS",      onclick: window_features_btn_defaults}),
+        btn_hotkeys   : button({margin:{centerx:-230, bottom:-44}, size:[150, 30], text:"#TR_BUTTON_CONFIGURE_HOTKEYS",   onclick: window_features_btn_hotkeys}),
+        btn_close     : button({margin:{centerx:90,   bottom:-44}, size:[100, 30], text:"#TR_BUTTON_CANCEL",              onclick: window_features_btn_close}),
+        btn_save      : button({margin:{centerx:200,  bottom:-44}, size:[100, 30], text:"#TR_BUTTON_OK",                  onclick: window_features_btn_save})
     }
 }
 

@@ -2,23 +2,23 @@ log_info("akhenaten: main menu started")
 
 main_menu_screen {
 	ui {
-		background    : { type:"background", path:"pharaoh_unloaded/title_00001" }
+		background    : { type:"background", path:"pharaoh_unloaded/title_00001", cover:true, fill_width:true, fill_height:true }
 
-		continue_game : large_button({ pos:mbutton(0), size[256, 25], text[13, 5], onclick_event: "continue_game" })
-		select_player : large_button({ pos:mbutton(1), size[256, 25], text[30, 0], onclick: show_window_by_id("window_player_selection") })
-		show_records  : large_button({ pos:mbutton(2), size[256, 25], text[30, 5], onclick: show_window_by_id("records_window") })
-		show_config   : large_button({ pos:mbutton(3), size[256, 25], text[2,  0], onclick: show_window_by_id("window_features") })
-		show_mods     : large_button({ pos:mbutton(4), size[256, 25], text:"#main_menu_mods", onclick: show_window_by_id("mods_window") })
-		quit_game     : large_button({ pos:mbutton(5), size[256, 25], text[30, 4], onclick_event: "quit_game" })
+		continue_game : large_button({ margin{centerx:-128, centery:-100}, size[256, 25], text[13, 5], onclick_event: "continue_game" })
+		select_player : large_button({ margin{centerx:-128, centery:-60}, size[256, 25], text[30, 0], onclick: show_window_by_id("window_player_selection") })
+		show_records  : large_button({ margin{centerx:-128, centery:-20}, size[256, 25], text[30, 5], onclick: show_window_by_id("records_window") })
+		show_config   : large_button({ margin{centerx:-128, centery:20}, size[256, 25], text[2,  0], onclick: show_window_by_id("window_features") })
+		show_mods     : large_button({ margin{centerx:-128, centery:60}, size[256, 25], text:"#main_menu_mods", onclick: show_window_by_id("mods_window") })
+		quit_game     : large_button({ margin{centerx:-128, centery:100}, size[256, 25], text[30, 4], onclick_event: "quit_game" })
 
-		discord 	  : image_button({ pos[sw(-100), sh(-50)], size[48, 48], icon_texture:"!discord", scale:0.75
+		discord 	  : image_button({ margin{right:-100, bottom:-50}, size[48, 48], icon_texture:"!discord", scale:0.75
 							           	onclick: function() { __platform_open_url("https://discord.gg/HS4njmBvpb") }
 		 							 })
 
-		patreon 	  : image_button({ pos[sw(-50), sh(-50)], size[48, 48], icon_texture:":patreon_48.png", scale:0.75
+		patreon 	  : image_button({ margin{right:-50, bottom:-50}, size[48, 48], icon_texture:":patreon_48.png", scale:0.75
 			                            onclick: function() { __platform_open_url("https://www.patreon.com/imspinner") }
 		                             })
-		version_number: text({pos[18, sh(-30)], text: game.version, font: FONT_SMALL_PLAIN, color: 0xffb3b3b3})
+		version_number: text({margin{left:18, bottom:-30}, text: game.version, font: FONT_SMALL_PLAIN, color: 0xffb3b3b3})
 
 		update_panel  : outer_panel({ size[20, 27], enabled:false,
 			ui {

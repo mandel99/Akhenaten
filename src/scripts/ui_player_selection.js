@@ -40,18 +40,19 @@ function player_selection_btn_back() {
 
 [es=window]
 window_player_selection {
+    center_window : true
     pos [(sw(0) - px(24))/2, (sh(0) - px(21))/2]
     allow_rmb_goback : true
     dynasty_name_changed : ""
     need_refresh_list : false
     ui {
-        background_image : background({pack:PACK_UNLOADED, id:29})
+        background_image : background({pack:PACK_UNLOADED, id:29, cover:true})
         background       : outer_panel({size[24, 21]})
 
-        title    : text_center({pos[0, 16], size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT, text[292, 3]})
+        title    : text_center({margin{top:16}, size[px(24), 20], font:FONT_LARGE_BLACK_ON_LIGHT, text[292, 3]})
 
         player_list : scrollable_list({
-            margin{left:16, top:52}
+            margin{centerx:-160, top:52}
             size[20, 13]
             dir:"Save/"
             file_ext:"folders"
@@ -62,10 +63,10 @@ window_player_selection {
             ondoubleclick_item: player_selection_on_double_click
         })
 
-        btn_new    : button({margin{left:16, top:266}, size[126, 25], text[292, 0], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_new })
-        btn_delete : button({margin{left:146, top:266}, size[126, 25], text[292, 1], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_delete })
-        btn_proceed: button({margin{left:278, top:266}, size[86, 25], text[292, 2], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_proceed })
-        btn_back   : button({margin{left:64, top:296}, size[256, 25], text[292, 4], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_back })
+        btn_new    : button({margin{centerx:-176, bottom:-70}, size[126, 25], text[292, 0], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_new })
+        btn_delete : button({margin{centerx:-46, bottom:-70}, size[126, 25], text[292, 1], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_delete })
+        btn_proceed: button({margin{centerx:86, bottom:-70}, size[86, 25], text[292, 2], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_proceed })
+        btn_back   : button({margin{centerx:-128, bottom:-40}, size[256, 25], text[292, 4], font:FONT_NORMAL_BLACK_ON_LIGHT, onclick: player_selection_btn_back })
     }
 }
 

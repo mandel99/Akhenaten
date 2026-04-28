@@ -5,6 +5,7 @@ trade_resource_settings_window {
     resource : null
     draw_underlying: true
     allow_rmb_goback: true
+    center_window : true
 
     pos [(sw(0) - px(36)) / 2, (sh(0) - px(15)) / 2]
     ui {
