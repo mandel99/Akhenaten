@@ -239,7 +239,7 @@ bool platform_screen_t::resize(int pixel_width, int pixel_height, int save) {
     }
 
     if (platform_renderer_create_render_texture(logical_width, logical_height)) {
-        screen_set_resolution(logical_width, logical_height);
+        g_screen.set_resolution(logical_width, logical_height);
         autoconfig_window::refresh_all();
         return true;
     }

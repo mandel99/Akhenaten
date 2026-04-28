@@ -1017,7 +1017,7 @@ void ui::einner_panel::load(archive arch, element* parent, items& elems) {
 void ui::widget::draw(UiFlags flags) {
     vec2i bsize = ui["background"].pxsize();
     if (bsize.x <= 0 || bsize.y <= 0) {
-        bsize = screen_size();
+        bsize = {screen_width(), screen_height()};
     }
 
     for (auto& e : elements) {
