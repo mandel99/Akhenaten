@@ -24,14 +24,6 @@ function top_menu_open_advisor(advisor, p2) {
 	window_advisors_show_checked()
 }
 
-function top_menu_show_advisor(advisor) {
-	return function() {
-		widget_top_menu_clear_state()
-		window_go_back()
-		window_advisors_show_advisor(advisor)
-	}
-}
-
 function top_menu_show_console(p1, p2) { window_show_cheat_console(true) }
 
 function top_menu_js_debugger_text(p1, p2) {
@@ -84,7 +76,7 @@ top_menu_widget {
 		file 			: menu_header({text: "${loc.top_menu_file}", tooltip: "${loc.top_menu_file_tooltip}" })
 		options			: menu_header({text {group:2, id:0}, tooltip[68, 52] })
 		help		   	: menu_header({text {group:3, id:0}, tooltip[68, 53] })
-		advisors  		: menu_header({text {group:4, id:0}, onclick: window_advisors_show_checked })
+		advisors  		: menu_header({text {group:4, id:0}, onclick: top_menu_open_advisor })
 		debug		   	: menu_header({text: "Debug" })
 		debug_render  	: menu_header({text: "Render" })
 	}
@@ -127,18 +119,18 @@ top_menu_widget {
 	}
 
 	advisors {
-		advisor_labor 	 :  menu_item({text{group: 4, id: ADVISOR_LABOR}, onclick: top_menu_show_advisor(ADVISOR_LABOR)})
-	    advisor_military :  menu_item({text{group: 4, id: ADVISOR_MILITARY}, onclick: top_menu_show_advisor(ADVISOR_MILITARY)})
-	    advisor_imperial :  menu_item({text{group: 4, id: ADVISOR_IMPERIAL}, onclick: top_menu_show_advisor(ADVISOR_IMPERIAL)})
-	    advisor_ratings  :  menu_item({text{group: 4, id: ADVISOR_RATINGS}, onclick: top_menu_show_advisor(ADVISOR_RATINGS)})
-	    advisor_trade    :  menu_item({text{group: 4, id: ADVISOR_TRADE}, onclick: top_menu_show_advisor(ADVISOR_TRADE)})
-	    advisor_population: menu_item({text{group: 4, id: ADVISOR_POPULATION}, onclick: top_menu_show_advisor(ADVISOR_POPULATION)})
-	    advisor_health   :  menu_item({text{group: 4, id: ADVISOR_HEALTH}, onclick: top_menu_show_advisor(ADVISOR_HEALTH)})
-	    advisor_education:  menu_item({text{group: 4, id: ADVISOR_EDUCATION}, onclick: top_menu_show_advisor(ADVISOR_EDUCATION)})
-	    advisor_entertainment: menu_item({text{group: 4, id: ADVISOR_ENTERTAINMENT}, onclick: top_menu_show_advisor(ADVISOR_ENTERTAINMENT)})
-	    advisor_religion :  menu_item({text{group: 4, id: ADVISOR_RELIGION}, onclick: top_menu_show_advisor(ADVISOR_RELIGION)})
-	    advisor_financial:  menu_item({text{group: 4, id: ADVISOR_FINANCIAL}, onclick: top_menu_show_advisor(ADVISOR_FINANCIAL)})
-	    advisor_chief    :  menu_item({text{group: 4, id: ADVISOR_CHIEF}, onclick: top_menu_show_advisor(ADVISOR_CHIEF)})
+		advisor_labor 	 :  menu_item({text{group: 4, id: ADVISOR_LABOR}, parameter: ADVISOR_LABOR})
+	    advisor_military :  menu_item({text{group: 4, id: ADVISOR_MILITARY}, parameter: ADVISOR_MILITARY})
+	    advisor_imperial :  menu_item({text{group: 4, id: ADVISOR_IMPERIAL}, parameter: ADVISOR_IMPERIAL})
+	    advisor_ratings  :  menu_item({text{group: 4, id: ADVISOR_RATINGS}, parameter: ADVISOR_RATINGS})
+	    advisor_trade    :  menu_item({text{group: 4, id: ADVISOR_TRADE}, parameter: ADVISOR_TRADE})
+	    advisor_population: menu_item({text{group: 4, id: ADVISOR_POPULATION}, parameter: ADVISOR_POPULATION})
+	    advisor_health   :  menu_item({text{group: 4, id: ADVISOR_HEALTH}, parameter: ADVISOR_HEALTH})
+	    advisor_education:  menu_item({text{group: 4, id: ADVISOR_EDUCATION}, parameter: ADVISOR_EDUCATION})
+	    advisor_entertainment: menu_item({text{group: 4, id: ADVISOR_ENTERTAINMENT}, parameter: ADVISOR_ENTERTAINMENT})
+	    advisor_religion :  menu_item({text{group: 4, id: ADVISOR_RELIGION}, parameter: ADVISOR_RELIGION})
+	    advisor_financial:  menu_item({text{group: 4, id: ADVISOR_FINANCIAL}, parameter: ADVISOR_FINANCIAL})
+	    advisor_chief    :  menu_item({text{group: 4, id: ADVISOR_CHIEF}, parameter: ADVISOR_CHIEF})
 	}
 
 	debug {
